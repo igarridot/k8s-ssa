@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ssa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ssa
+rules:
+- apiGroups:
+  - ""
+  - extensions
+  - apps
+  - rbac.authorization.k8s.io
+  - networking.k8s.io
+  - autoscaling
+  - batch
+  - policy
+  - rabbitmq.com
+  - admissionregistration.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ssa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ssa
+subjects:
+- kind: ServiceAccount
+  name: ssa
+  namespace: default
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ssa
+spec:
+  template:
+    spec:
+      serviceAccountName: ssa
+      containers:
+      - name: ssa
+        image: norbega/k8s-ssa:v0.1.0
+      restartPolicy: Never
+  backoffLimit: 1
