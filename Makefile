@@ -1,6 +1,6 @@
 tag_name = norbega/
 golang_version := 1.18
-VERSION ?= v0.1.10
+VERSION ?= v0.1.0
 PROJECT ?= k8s-ssa
 
 build:

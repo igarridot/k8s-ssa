@@ -22,7 +22,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
-  namespace: default
 spec:
   selector:
     matchLabels:
@@ -77,6 +76,9 @@ func doSSA() error {
 	if mapping.Scope.Name() == meta.RESTScopeNameNamespace {
 		// namespaced resources should specify the namespace
 		dr = dyn.Resource(mapping.Resource).Namespace(obj.GetNamespace())
+		if obj.GetNamespace() == "" {
+			dr = dyn.Resource(mapping.Resource).Namespace("default")
+		}
 	} else {
 		// for cluster-wide resources
 		dr = dyn.Resource(mapping.Resource)
@@ -91,7 +93,7 @@ func doSSA() error {
 	// 7. Create or Update the object with SSA
 	//     types.ApplyPatchType indicates SSA.
 	//     FieldManager specifies the field owner ID.
-	_, err = dr.Patch(ctx, obj.GetName(), types.ApplyPatchType, data, metav1.PatchOptions{FieldManager: "sample-controller"})
+	_, err = dr.Patch(ctx, obj.GetName(), types.ApplyPatchType, data, metav1.PatchOptions{FieldManager: "ssa"})
 
 	return err
 }
